@@ -1,7 +1,7 @@
 
 ////////////Wrapper Function ///////////
 
-//standardise how each time when a [route handles function] or a finction is passed
+//standardise how each time when a [route handles function] or a function is passed
 //it give a same standard output to the user and reduces the writing of same code
 // again and again
 
