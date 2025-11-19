@@ -8,7 +8,7 @@ import { app } from "./app";             //I Think ! - Middleware File Importing
 dotenv.config({path : './env'})          //tells to load variables form .env file
 
 
-DB_Connection()            //DataBase Connection (inshort). // also returns promise 
+DB_Connection()            //MongoDB Driver Program (inshort) // also returns promise 
 
 .then(()=>{                // .then and .catch handles this promise
     app.listen(process.env.PORT || 8000 , ()=>{
