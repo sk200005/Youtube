@@ -1,18 +1,20 @@
 import mongoose from "mongoose";
-import {DB_NAME}  from "./constants"
-import DB_Connection from "./db";        //Connections Declartoin Importing
+import connectDB from "./db/db.js";        //Connections Declartoin Importing
 
 import dotenv from "dotenv"              
-import { app } from "./app";             //I Think ! - Middleware File Importing
+import { app } from "./app.js";             //I Think ! - Middleware File Importing
 
-dotenv.config({path : './env'})          //tells to load variables form .env file
+dotenv.config()          //tells to load variables form .env file
 
 
-DB_Connection()            //MongoDB Driver Program (inshort) // also returns promise 
+connectDB()            //MongoDB Driver Program (inshort) // also returns promise 
 
 .then(()=>{                // .then and .catch handles this promise
+
+    app.get("/" , (req ,res)=>{res.send("Namaskar 🙏")})
     app.listen(process.env.PORT || 8000 , ()=>{
-        console.log(`Server Running at port: ${process.env.PORT} or 8000`)
+        console.log(`Server Running at port: ${process.env.PORT}`)
+        
     })
     app.on("error" , (error) =>{
         console.log("error: " ,error);

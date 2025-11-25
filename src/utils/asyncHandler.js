@@ -1,12 +1,11 @@
 
 ////////////Wrapper Function ///////////
 
-//standardise how each time when a [route handles function] or a function is passed
-//it give a same standard output to the user and reduces the writing of same code
-// again and again
+// Catch errors that happen inside routes or endpooints ex -"/login" using async/await,
+// and return a proper response instead of crashing the server.
 
 const asyncHandler = (requestHandler) => {
-    return async (req, res, next) => {
+    return async (req, res, next) => {       //actual automatic function that handles logic in a try–catch.
         try {
             await requestHandler(req, res, next);
         } catch (error) {
@@ -17,8 +16,7 @@ const asyncHandler = (requestHandler) => {
         }
     };
 };
-
-// export { asyncHandler };
+export { asyncHandler };
 
 // const Handler = (reqHandle) => {
 //   return (req, res, next) => {
