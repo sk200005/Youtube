@@ -1,4 +1,5 @@
 import dotenv from "dotenv"      
+dotenv.config({path : './.env'})
       // Don't Forget !!!
 
 import { v2 as cloudinary } from "cloudinary";
