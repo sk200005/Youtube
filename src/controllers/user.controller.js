@@ -30,6 +30,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const avatarFile = req.files?.avatar?.[0];
     const coverFile  = req.files?.coverImage?.[0];
 
+
+
     if (!avatarFile) {
         throw new ApiError(400, "Avatar File Required 😊");
     }
@@ -43,6 +45,8 @@ const registerUser = asyncHandler(async (req, res) => {
     // Upload to Cloudinary
     const avatarUpload = await uploadOnCloudinary(avatarPath);
     const coverUpload  = coverPath ? await uploadOnCloudinary(coverPath) : null;
+
+
 
     if (!avatarUpload) {
         throw new ApiError(500, "Avatar File Upload Failed..");
