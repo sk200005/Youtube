@@ -12,7 +12,9 @@ app.use(cors({
 app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended:true, limit : "16kb"}))
 app.use(express.static("public"));    // Store Video / images in the public folder
-app.use(cookieParser())               //Access cookies from the browser of the user
+app.use(cookieParser())               //pulls cookies from the incoming HTTP request
+                                      //parses them into a readable JavaScript object.
+            
 
 //////////////////MIDDLEWARE DECLARE///////////////
 

@@ -14,13 +14,13 @@ const __dirname = path.dirname(__filename);
 
 const generateAccessAndRefreshTokens = async(userID)=>{
     try {
-        const user1 = await User.findById({userID});
+        const user1 = await User.findById(userID);
         
         const accessToken = user1.generateAccessToken();
         const refreshToken = user1.generateRefreshToken();
 
         user1.refreshToken = refreshToken;
-        user1.save({validateBeforeSave : false})
+        await user1.save({validateBeforeSave : false})
 
         return{accessToken , refreshToken}
 
@@ -89,12 +89,13 @@ const loginUser = asyncHandler(async(req ,res) =>{
     //Tokens related - Check Tokens , Deduct them , refresh them
     //send cookie
 
-    const {email , username , password} = req.body
+    const {email, username, password} = req.body
+    const normalizedUsername = username?.toLowerCase();
 
-    if(!username || !email) {throw new ApiError(400 , "Either of Email or Username required 😁");}
+    if(!username && !email) {throw new ApiError(400 , "Either of Email or Username required 😁");}
 
     const checkUser = await User.findOne({
-        $or : [{username} , {email}]  
+        $or : [{username : normalizedUsername} , {email}]  
     })
     if(!checkUser) {throw new ApiError(404, "User Does not Exist 😭 Register now")}
 
@@ -104,16 +105,16 @@ const loginUser = asyncHandler(async(req ,res) =>{
     const{accessToken ,refreshToken}  = await generateAccessAndRefreshTokens(checkUser._id);
                                  ///////////Cookie/////////////
 
-    const loggedInUser = User.findById(user._id).select("-password -refreshToken") //optional
+    const loggedInUser = await User.findById(checkUser._id).select("-password -refreshToken") //optional
 
     const options = {
         httpOnly : true,  //Cookie is not accessible by JavaScript on the client side.
-        secure: url       //When true, cookie is sent only over HTTPS.
+        secure: false       //When true, cookie is sent only over HTTPS.
     }
     return res
     .status(200)     
-    .cookie("AcceessToken" , accessToken , options)  //adds a Set-Cookie header into the response. 
-    .cookie("RefreshToken" , refreshToken , options) //Browser receives it and stores the cookie automatically in it's own cookie jar, isolated by domain.
+    .cookie("accessToken" , accessToken , options)  //adds a Set-Cookie header into the response. 
+    .cookie("refreshToken" , refreshToken , options) //Browser receives it and stores the cookie automatically in it's own cookie jar, isolated by domain.
     .json(                                           
         new ApiResponse(
             200,
@@ -127,6 +128,28 @@ const loginUser = asyncHandler(async(req ,res) =>{
 });
 /////////////////////////////////////LogOut User ///////////////////////////////////////
 
+const logoutUser = asyncHandler(async(req,res)=>{
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set : {
+                refreshToken : "" // this removes the field from document
+            }
+        },
+        { new : true}
+    )
+    const options = {
+        httpOnly : true,  //Cookie is not accessible by JavaScript on the client side.
+        secure: false       //When true, cookie is sent only over HTTPS.
+    }
+    return res
+    .status(200)
+    .clearCookie("accessToken" ,options)
+    .clearCookie("refreshToken" ,options)
+    .json(new ApiResponse(200 ,{},"User Logged Out"))
+})
 
-
-export { registerUser ,loginUser};
+////////////////////////////////////////////////////////////////////////////////////////
+export { registerUser,
+         loginUser ,
+         logoutUser};
