@@ -23,6 +23,5 @@ import userRouter from './routes/user.routes.js'   //because there is export def
 app.use("/api/v1/users" , userRouter)      // refere to all endpoints decalred 
                                            // inside user.route.js as userRouter
 
-// import userRouter from "./routes/user.routes.js"
 
 export {app}

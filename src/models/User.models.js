@@ -39,9 +39,10 @@ const userSchema = new mongoose.Schema(
       watchedHistory : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "Video"
+      },
+      refreshToken: {
+            type: String
       }
-
-
     },
     {
         timestamps : true
@@ -59,29 +60,25 @@ userSchema.methods.isPasswordCorrect = async function(password){
 }
 
 userSchema.methods.generateAccessToken = function(){
-    return jwt.sign(
-        {
-            _id: this._id,
+    return jwt.sign(          //Creates the token payload  
+        {                     //Packages key user details inside the token
+            _id: this._id,    //backend can later verify without hitting the database.
             email: this.email,
             username: this.username,
             fullName: this.fullName
         },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
-        }
+        process.env.ACCESS_TOKEN_SECRET, //prevents from forging access tokens
+
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY /* 1 Day */}
     )
 }
 userSchema.methods.generateRefreshToken = function(){
-    return jwt.sign(
-        {
-            _id: this._id,
-            
-        },
+    return jwt.sign(           //A refresh token is a long-lived token that allows            
+        { _id: this._id, },   //the user to get a new access token without logging in again.
+
         process.env.REFRESH_TOKEN_SECRET,
-        {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
-        }
+
+        { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
     )
 }
 
