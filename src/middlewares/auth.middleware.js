@@ -17,15 +17,19 @@ export const verfyJWT = asyncHandler(async(req,_,next)=>{
     
         if (!token) { throw new ApiError(401, "Unauthorized request")}
     
-        const decodeToken = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET); // decodeToken Has ._id of that user
-    
+        const decodeToken = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET); 
+        // decodeToken Has ._id of that user
+
         const user = await User.findById(decodeToken?._id).select("-password -refreshToken");
     
         if (!user) {throw new ApiError(401 , "Invalid Access Token")}
     
         req.user = user;
-        next()
+        next()  // after req moves out of auth middleware by "next()" command ,
+                //  it is attached with the user's every data 
     } catch (error) {
         throw new ApiError(401 , error?.message || "Invalid Access Token")
     }
 })
+//this middleware just attaches req.user to the incoming request related
+//  to the cookies sent by the browser earlier 
