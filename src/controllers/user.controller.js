@@ -12,7 +12,7 @@ import { json } from "stream/consumers";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-/////////////////////Token Generation Funcion////////////////////////////////////////
+/////////////////////Token Generation Funcion/- Debbuged///////////////////////////////////////
 
 const generateAccessAndRefreshTokens = async(userID)=>{
     try {
@@ -30,7 +30,7 @@ const generateAccessAndRefreshTokens = async(userID)=>{
         throw new ApiError(500 , "Something went wrong while generating " +
                                  "Access and Refresh Tokens ")}
 }
-/////////////////////Register User///////////////////////////////////////////////////
+/////////////////////Register User- Debbuged///////////////////////////////////////////////////
 const registerUser = asyncHandler(async (req, res) => {
 
     const { fullName, email, username, password } = req.body;
@@ -83,7 +83,7 @@ const registerUser = asyncHandler(async (req, res) => {
         new ApiResponse(200,  sanitizedUser,"User Registered Successfully")
     );
 });
-////////////////////////////LogIn User//////////////////////////////////////////////
+////////////////////////////LogIn User- Debbuged//////////////////////////////////////////////
 const loginUser = asyncHandler(async(req ,res) =>{
     //Get Login Details - Username , email 
     //check the same from database
@@ -150,7 +150,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
     .clearCookie("refreshToken" ,options)
     .json(new ApiResponse(200 ,{},"User Logged Out"))
 })
-///////////////////////RefreshAccessToken///////////////////////////////////////////////
+///////////////////////RefreshAccessToken- Debbuged///////////////////////////////////////////////
 const RefreshAccessToken = asyncHandler(async(req,res) =>{
     const incomingToken = req.cookies.refreshToken || req.body.refreshToken;
     if (!incomingToken) {
@@ -185,7 +185,7 @@ const RefreshAccessToken = asyncHandler(async(req,res) =>{
         throw new ApiError (401 , error?.message || "Something Went Wrong")
     }
 })
-////////////////////////////////Change CUrrent Password/////////////////////////////////
+////////////////////////////////Change CUrrent Password - Debbuged/////////////////////////////////
 const changeCurrentPassword = asyncHandler(async(req, res)=>{
     const {oldPassword ,newPassword } = req.body;
 
@@ -195,18 +195,18 @@ const changeCurrentPassword = asyncHandler(async(req, res)=>{
     if (!isPasswordCorrect) { throw new ApiError(400 , "Invalid Passsword")}
 
     user.password = newPassword;
-    await user.save({validateBeforeSave});
+    await user.save({validateBeforeSave : false});
 
     return res
     .status(200)
     .json(new ApiResponse(200 , {} , "Password Changed Successsfully"))
 })
-////////////////////////////////Get Current User ///////////////////////////////////////
+////////////////////////////////Get Current User - Debugged ///////////////////////////////////////
  const getCurrentUser = asyncHandler(async(req,res)=>{
     return res.status(200)
-    .json(200 , req.user ,"Current User fetched Successfully") //id through request(auth middleware)
+    .json( new ApiResponse(200 , req.user ,"Current User fetched Successfully")) //id through request(auth middleware)
  })
-/////////////////////////////////updateAccountDetail ///////////////////////////////////
+/////////////////////////////////updateAccountDetail - Debugged ///////////////////////////////////
 const updateAccountDetail = asyncHandler(async(req,res)=>{
     const {fullName , email} = req.body;
     if(!fullName || !email) {throw new ApiError(400, "All feilds are Required") }
@@ -219,11 +219,11 @@ const updateAccountDetail = asyncHandler(async(req,res)=>{
 
     return res
     .status(200)
-    .json(new ApiResponse(200 , user , "Updated SUcessfully !"))
+    .json(new ApiResponse(200 , req.user , "Updated SUcessfully !"))
 })
- ////////////////////////////////updateUserAvatar///////////////////////////////////////
+ ////////////////////////////////updateUserAvatar -Debbuged///////////////////////////////////////
 const updateUserAvatar = asyncHandler(async(req,res)=>{
-    const avatarLocalPath = req.file?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
     if(!avatarLocalPath) {throw new ApiError(400 , "Avatar file is Missing")}
 
     const uploadAvatar = await uploadOnCloudinary(avatarLocalPath);
@@ -240,10 +240,10 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
     .status(200)
     .json(new ApiResponse(200 ,{} ,"Uplaoded Avatar Successfully"))
 })
-////////////////////////////////updateUserCoverImage///////////////////////////////////////
+////////////////////////////////updateUserCoverImage -Debugged///////////////////////////////////////
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
-    const coverImageLocalPath = req.file?.path;
-    if(!coverImageLocalPath) {throw new ApiError(400 , "Avatar file is Missing")}
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+    if(!coverImageLocalPath) {throw new ApiError(400 , "CoverImage file is Missing")}
 
     const uploadcoverImage = await uploadOnCloudinary(coverImageLocalPath);
 

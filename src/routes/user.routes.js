@@ -32,11 +32,11 @@ router.route("/login").post(loginUser)
 //Secured Routes
 router.route("/logout").post(verfyJWT , logoutUser)
 router.route("/refresh-token").post(RefreshAccessToken)
-router.route("/change-password").post(verfyJWT , changeCurrentPassword)
+router.route("/change-password").post(verfyJWT , changeCurrentPassword)//
 router.route("/get-currentUser").post(verfyJWT , getCurrentUser)
 router.route("/update-accountDetail").post(verfyJWT , updateAccountDetail)
-router.route("/update-avatarImage").post(verfyJWT , updateUserAvatar)
-router.route("/update-coverImage").post(verfyJWT , updateUserCoverImage )
+router.route("/update-avatarImage").post(verfyJWT ,upload.fields([{name : "avatar",maxCount : 1 }]), updateUserAvatar)//goes through Middleware - Multer
+router.route("/update-coverImage").post(verfyJWT,upload.fields([{name : "coverImage",maxCount : 1 }]), updateUserCoverImage )
 
 
 export default router;
