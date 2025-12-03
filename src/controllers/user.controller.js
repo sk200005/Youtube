@@ -262,22 +262,64 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
 })
 ////////////////////////////////getUserChannelProfile - /////////////////////////////////////////////
 const getUserChannelProfile = asyncHandler(async(req,res)=>{
-    const {username} = req.params
-    if (!username?.trim) { throw new ApiError(400 , "UserName is Missing")}
+    const {u1} = req.params
+    if (!u1?.trim) { throw new ApiError(400 , "UserName is Missing")}
 
-    const channel = await User.aggregate([
+    const channel = await User.aggregate([  //  Finding/Counting the subscribers subscribed to  u1
         {
-            $match : {username : username?.toLowerCase()}
+            $match : {username : u1?.toLowerCase()}   //search around u1
+        },
+        {                  //left Join -    u1 (USER) :|: u1 as channel (SUBSCRIPTION)
+            $lookup : {
+                from:"subscriptions",     //find in subscription table
+                localField : "_id",       // u1  - in USER table   (on basis of _id)
+                foreignField :"channel",  // u1  - in SUBSCRIPTION (on basis where u1 as channel)
+                as : "totalSubscibers"         //when don't care who is subscribed to u1
+            }              //we just count, how many times u1 has appered as channel
         },
         {
             $lookup : {
-                from:"subscriptions",
+                from : "subscriptions",
                 localField : "_id",
-                foreignField :"channel",
-                as : "subscibers"
+                foreignField : "subscriber",
+                as : "subscibedTo"
+            }
+        },
+        {
+            $addFields : {
+                subscriberCount : {
+                    $size : "$totalSubscibers"
+                },
+                channelSubscribedToCount : {
+                    $size :  "$subscibedTo"
+                },
+                isSubscribed: {
+                    $cond:{
+                        if : {$in : [req.user?._id , "$totalSubscibers.subscriber"]},
+                        then : true,
+                        else : false
+                    }
+                }
+            }
+        },
+        {
+            $project : {
+                fullName : 1,
+                username : 1,
+                subscriberCount : 1,
+                channelSubscribedToCount : 1,
+                avatar : 1,
+                coverImage : 1,
+                email : 1
             }
         }
     ])
+    if (!channel?.length) {throw new ApiError(404 , "Channel does not exists");}
+
+    return res.status(200)
+    .json(
+        new ApiResponse(200, channel[0] , "User channel fetched successfully")
+    )
 })
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
