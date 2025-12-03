@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { url } from "inspector";
 import { json } from "stream/consumers";
+import { subscribe } from "diagnostics_channel";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -221,7 +222,7 @@ const updateAccountDetail = asyncHandler(async(req,res)=>{
     .status(200)
     .json(new ApiResponse(200 , req.user , "Updated SUcessfully !"))
 })
- ////////////////////////////////updateUserAvatar -Debbuged///////////////////////////////////////
+ ////////////////////////////////updateUserAvatar -Debbuged////////////////////////////////////////
 const updateUserAvatar = asyncHandler(async(req,res)=>{
     const avatarLocalPath = req.files?.avatar?.[0]?.path;
     if(!avatarLocalPath) {throw new ApiError(400 , "Avatar file is Missing")}
@@ -240,7 +241,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
     .status(200)
     .json(new ApiResponse(200 ,{} ,"Uplaoded Avatar Successfully"))
 })
-////////////////////////////////updateUserCoverImage -Debugged///////////////////////////////////////
+////////////////////////////////updateUserCoverImage - Debugged/////////////////////////////////////
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
     const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
     if(!coverImageLocalPath) {throw new ApiError(400 , "CoverImage file is Missing")}
@@ -259,7 +260,27 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
     .status(200)
     .json(new ApiResponse(200 ,{} ,"Uplaoded CoverImage Successfully"))
 })
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////getUserChannelProfile - /////////////////////////////////////////////
+const getUserChannelProfile = asyncHandler(async(req,res)=>{
+    const {username} = req.params
+    if (!username?.trim) { throw new ApiError(400 , "UserName is Missing")}
+
+    const channel = await User.aggregate([
+        {
+            $match : {username : username?.toLowerCase()}
+        },
+        {
+            $lookup : {
+                from:"subscriptions",
+                localField : "_id",
+                foreignField :"channel",
+                as : "subscibers"
+            }
+        }
+    ])
+})
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 export { registerUser,
         loginUser,
         logoutUser,
