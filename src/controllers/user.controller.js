@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 import { url } from "inspector";
 import { json } from "stream/consumers";
 import { subscribe } from "diagnostics_channel";
+import mongoose from "mongoose";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -321,7 +322,49 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
         new ApiResponse(200, channel[0] , "User channel fetched successfully")
     )
 })
-
+////////////////////////////////getUserWatchHistory - /////////////////////////////////////////////
+const getUserWatchHistory = asyncHandler(async(req,res)=>{
+    const user = await User.aggregate([{
+        $match : {
+            _id : new mongoose.Types.ObjectId(req.user._id) // way to convert sting --> id (actual)
+            //req.user._id has a string init, which is converted to id by mongoose but not in aggregation pipeline 
+        },
+    },
+    {
+        $lookup : {
+            from : "videos",
+            localField : "watchedHistory",
+            foreignField : "_id",
+            as : "watchHistory",
+            pipeline : [{
+                $lookup : {
+                    from: "users" ,
+                    localField : "owner",
+                    foreignField : "_id",
+                    as : "Owner",
+                    pipeline :[{
+                        $project :{
+                            fullName : 1,
+                            username : 1,
+                            avatar : 1
+                        }
+                    },
+                    {
+                        $addFields : {
+                            owner: {
+                                $first : "$owner"
+                            }
+                        }
+                    }
+                ]
+                }
+            }]
+        }
+    }
+  ])
+  return res.status(200)
+  .json(new ApiResponse(200 , user[0].watchHistory , "Watched History Fetched Successfully"))
+})
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export { registerUser,
         loginUser,
@@ -331,5 +374,7 @@ export { registerUser,
         getCurrentUser,
         updateAccountDetail,
         updateUserAvatar,
-        updateUserCoverImage
+        updateUserCoverImage,
+        getUserChannelProfile,
+        getUserWatchHistory
 };
