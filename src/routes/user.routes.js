@@ -35,12 +35,12 @@ router.route("/login").post(loginUser)
 router.route("/logout")              .post(verfyJWT , logoutUser)
 router.route("/refresh-token")       .post(RefreshAccessToken)
 router.route("/change-password")     .post(verfyJWT , changeCurrentPassword)//
-router.route("/get-currentUser")     .get(verfyJWT , getCurrentUser)
 router.route("/update-accountDetail").patch(verfyJWT , updateAccountDetail)
 router.route("/update-avatarImage")  .patch(verfyJWT ,upload.fields([{name : "avatar",maxCount : 1 }]), updateUserAvatar)//goes through Middleware - Multer
 router.route("/update-coverImage")   .patch(verfyJWT,upload.fields([{name : "coverImage",maxCount : 1 }]), updateUserCoverImage )
-router.route("/c/:username") .get(verfyJWT , getUserChannelProfile)
-router.route("/history").get(verfyJWT , getUserWatchHistory)
+router.route("/get-currentUser")     .get(verfyJWT , getCurrentUser)
+router.route("/c/:username")         .get(verfyJWT , getUserChannelProfile)
+router.route("/history")             .get(verfyJWT , getUserWatchHistory)
 
 
 export default router;
