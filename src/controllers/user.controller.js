@@ -131,7 +131,6 @@ const loginUser = asyncHandler(async(req ,res) =>{
     )
 });
 /////////////////////////////////////LogOut User ///////////////////////////////////////
-
 const logoutUser = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
@@ -261,14 +260,14 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
     .status(200)
     .json(new ApiResponse(200 ,{} ,"Uplaoded CoverImage Successfully"))
 })
-////////////////////////////////getUserChannelProfile - /////////////////////////////////////////////
+////////////////////////////////getUserChannelProfile - Debugged////////////////////////////////////
 const getUserChannelProfile = asyncHandler(async(req,res)=>{
-    const {u1} = req.params
-    if (!u1?.trim) { throw new ApiError(400 , "UserName is Missing")}
+    const {username} = req.params
+    if (!username?.trim) { throw new ApiError(400 , "UserName is Missing")}
 
     const channel = await User.aggregate([  //  Finding/Counting the subscribers subscribed to  u1
         {
-            $match : {username : u1?.toLowerCase()}   //search around u1
+            $match : {username : username?.toLowerCase()}   //search around u1
         },
         {                  //left Join -    u1 (USER) :|: u1 as channel (SUBSCRIPTION)
             $lookup : {
@@ -322,7 +321,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
         new ApiResponse(200, channel[0] , "User channel fetched successfully")
     )
 })
-////////////////////////////////getUserWatchHistory - /////////////////////////////////////////////
+////////////////////////////////getUserWatchHistory -Debugged///////////////////////////////////////
 const getUserWatchHistory = asyncHandler(async(req,res)=>{
     const user = await User.aggregate([{
         $match : {
